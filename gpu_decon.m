@@ -136,6 +136,6 @@ else
     gpu_Estimate = gpu_Estimate(npad(2)+1:npad(2)+ny, npad(1)+1:npad(1)+nx, npad(3)+1:npad(3)+nz);
 end
 output_image = gather(gpu_Estimate);
-output_image = uint16(65535 * output_image ./ max(output_image, [], 'all'));
+% output_image = uint16(65535 * output_image ./ max(output_image, [], 'all'));
 
 

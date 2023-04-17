@@ -66,6 +66,10 @@ for channel_index = 1:channels
     FWHM = [xres(channel_index), yres(channel_index), zres(channel_index)];
     output_image = gpu_decon(input_image, FWHM, iteration(channel_index));
     
+    if max(output_image, [], 'all') > 65535
+         output_image = uint16(65535 * output_image ./ max(output_image, [], 'all'));
+    end
+    
     if slices == 1
         output_stack(:, :, channel_index) = output_image;
     else
