@@ -5,28 +5,28 @@ function output_image = gpu_decon(input_image, FWHM, iterations)
 % This reduces array replication and allows 'in-place' writing - improving memory usage.
 % 2. Traffic to/from GPU as uint16 to improve speed
 
+%{
+Gaussian function:
+f(x) = exp(- x^2 / sigma^2 / 2) / (sigma * sqrt(2 * pi))
 
-% Gaussian function:
-% f(x) = exp(- x^2 / sigma^2 / 2) / (sigma * sqrt(2 * pi))
+The relationship between FWHM and the standard deviation is:
+FWHM = 2 * sqrt(2 * ln(2)) * sigma ~= 2.355 * sigma
+sigma = FWHM / 2.355
+%}
 
-% The relationship between FWHM and the standard deviation is:
-% FWHM = 2 * sqrt(2 * ln(2)) * sigma ~= 2.355 * sigma
-% sigma = FWHM / 2.355
+%{
+Richardson–Lucy deconvolution:
+(1) Blurred_estimate = conv(Estimate(t), PSF)
+Note: Estimate(t) means current estimate.
 
-% Richardson–Lucy deconvolution:
-% (1) Blurred_estimate = conv(Estimate(t), PSF)
-% Note: Estimate(t) means current estimate.
-%
-% (2) Ratio = Observed_image ./ Blurred_estimate
-% Note: Observed_image is input_image here.
-%
-% (3) Correction = conv(Ratio, PSF_flip)
-%
-% (4) Estimate(t + 1) = Estimate(t) .* Correction
-% Note: Estimate(t + 1) means output estimate.
+(2) Ratio = Observed_image ./ Blurred_estimate
+Note: Observed_image is input_image here.
 
+(3) Correction = conv(Ratio, PSF_flip)
 
-
+(4) Estimate(t + 1) = Estimate(t) .* Correction
+Note: Estimate(t + 1) means output estimate.
+%}
 
 
 % FWHM = [4, 4, 4];   % FWHM pixels values in X, Y, and Z dimensions.
