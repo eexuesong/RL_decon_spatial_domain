@@ -1,11 +1,15 @@
 % Xuesong Li 05/10/2023:
 
 %% GUI part
-% load raw data
-[filename_data, path_data] = uigetfile('*.tif', 'Choose any one of raw data');
+global path_data
 
 % set parameters
-inputDialog = uifigure('Name', 'Set Parameters', 'Position', [300 500 500 320]);
+inputDialog = uifigure('Name', 'Set Parameters', 'Position', [300 500 500 360]);
+
+% button to load data path
+txa_path = uitextarea(inputDialog, 'Value', 'Please load an image file', 'Position', [20 330 400 20]);
+btn1 = uibutton(inputDialog, 'push', 'Position', [430 330 50 20], 'Text', 'Open',...
+    'ButtonPushedFcn', @(btn1, event) loadButtonPushed(txa_path));
 
 % panels
 pnl_60x = uipanel(inputDialog, 'Position', [10 210 480 105]);
@@ -57,20 +61,31 @@ txa_itNum{3} = uitextarea(inputDialog, 'Value', '10', 'Position', [300 60 60 20]
 txa_itNum{4} = uitextarea(inputDialog, 'Value', '10', 'Position', [400 60 60 20]);
 
 % buttons to confirm/cancel processing
-pb1 = uibutton(inputDialog, 'push', 'Position', [180 20 50 20], 'Text', 'Yes',...
-    'ButtonPushedFcn', @(pb1, event) pbYes(inputDialog, txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_100x_FWHM_z, txa_itNum, path_data));
-pb2 = uibutton(inputDialog, 'push', 'Position', [280 20 50 20], 'Text', 'Cancel',...
-    'ButtonPushedFcn', @(pb1, event) pbCancel(inputDialog));
+btn2 = uibutton(inputDialog, 'push', 'Position', [180 20 50 20], 'Text', 'Yes',...
+    'ButtonPushedFcn', @(btn2, event) yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_100x_FWHM_z, txa_itNum));
+btn3 = uibutton(inputDialog, 'push', 'Position', [280 20 50 20], 'Text', 'Cancel',...
+    'ButtonPushedFcn', @(btn3, event) cancelButtonPushed(inputDialog));
+
+%%
+function loadButtonPushed(txa_path)
+% load raw data
+    global  path_data
+    [~, path_data] = uigetfile('*.tif', 'Choose any one of raw data');
+    set(txa_path, 'Value', path_data);
+end
+
 
 %% Cancel dialog box
-function pbCancel(inputDialog)
+    function cancelButtonPushed(inputDialog)
     delete(inputDialog);
     disp('Processing cancelled!!!')
 end
 
 %% Yes dialog box
-function pbYes(inputDialog, txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_100x_FWHM_z, txa_itNum, path_data)
+function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_100x_FWHM_z, txa_itNum)
+    global path_data 
 %     set(inputDialog, 'Pointer', 'watch');
+
     myFiles = dir(path_data);
     filenames = {myFiles.name};
     mask = endsWith(filenames, {'.tif', '.tiff'}, 'IgnoreCase', true);
@@ -126,5 +141,5 @@ function pbYes(inputDialog, txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, t
         end  
     end
 
-    delete(inputDialog);
+%     set(inputDialog, 'Pointer', 'arrow');
 end
