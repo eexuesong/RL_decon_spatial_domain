@@ -84,29 +84,32 @@ disp(['GPU Memory after RL deconvolution: ',num2str(g.FreeMemory / 1024 / 1024 /
 
 
 %% Save tiff stack file
-output_filename = strrep(filename, '.tif', '_decon.tif');
+[filepath, name, ext] = fileparts(filename);
+path_output = strcat(filepath, '\deconvolution_results\');
+mkdir(path_output);
+filepath_output = strcat(path_output, name, '_decon.tif');
 
 if channels == 1
     if isempty(header.resolution)
-        ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename);
+        ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output);
     elseif isempty(header.spacing)
-        ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename, header.resolution);
+        ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output, header.resolution);
     else
-        ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename, header.resolution, header.spacing, 'z');
+        ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output, header.resolution, header.spacing, 'z');
     end
 else
     if slices == 1
         if isempty(header.resolution)
-            ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename, 0.05, 0.2, 'c');
+            ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output, 0.05, 0.2, 'c');
         else
-            ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename, header.resolution, 0.2, 'c');
+            ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output, header.resolution, 0.2, 'c');
         end
     else
         output_stack = permute(output_stack, [1 2 4 3]);    % Swap channels and slices
         if isempty(header.resolution) || isempty(header.spacing)
-            ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename, 0.05, 0.2, 'cz');
+            ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output, 0.05, 0.2, 'cz');
         else
-            ImageJ_formatted_TIFF.WriteTifStack(output_stack, output_filename, header.resolution, header.spacing, 'cz');
+            ImageJ_formatted_TIFF.WriteTifStack(output_stack, filepath_output, header.resolution, header.spacing, 'cz');
         end
     end
 
