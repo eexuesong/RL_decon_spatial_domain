@@ -16,7 +16,7 @@ pnl_60x = uipanel(inputDialog, 'Position', [10 210 480 105]);
 pnl_100x = uipanel(inputDialog, 'Position', [10 100 480 105]);
 
 % set FWHM of PSFs (60X)
-uilabel(pnl_60x, 'Text', 'UPLSAPO60XS2', 'Position', [10 80 100 20]);
+uilabel(pnl_60x, 'Text', 'UPLSAPO60XS', 'Position', [10 80 100 20]);
 uilabel(pnl_60x, 'Text', '405 nm:', 'Position', [90 60 60 20]);
 uilabel(pnl_60x, 'Text', '488 nm:', 'Position', [190 60 60 20]);
 uilabel(pnl_60x, 'Text', '561 nm:', 'Position', [290 60 60 20]);
@@ -102,14 +102,14 @@ function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_
             itNum = zeros([1, length(header.IJMetadata.ChNames)]);
 
             for channel_index = 1:length(header.IJMetadata.ChNames)
-                if contains(header.MicroManagerMetadata, 'UPLSAPO60XS2')
+                if contains(header.MicroManagerMetadata, 'UPLSAPO60XS')
                     switch header.IJMetadata.ChNames{channel_index}
-                        case 'GFP'
+                        case {'GFP', 'iSIM - GFP'}
                             FWHM_x(channel_index) = str2double(get(txa_60x_FWHM_xy{2}, 'Value'));
                             FWHM_y(channel_index) = str2double(get(txa_60x_FWHM_xy{2}, 'Value'));
                             FWHM_z(channel_index) = str2double(get(txa_60x_FWHM_z{2}, 'Value'));
                             itNum(channel_index) = str2double(get(txa_itNum{2}, 'Value'));
-                        case 'mCherry'
+                        case {'mCherry', 'iSIM - mCherry'}
                             FWHM_x(channel_index) = str2double(get(txa_60x_FWHM_xy{3}, 'Value'));
                             FWHM_y(channel_index) = str2double(get(txa_60x_FWHM_xy{3}, 'Value'));
                             FWHM_z(channel_index) = str2double(get(txa_60x_FWHM_z{3}, 'Value'));
@@ -117,12 +117,12 @@ function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_
                     end
                 elseif contains(header.MicroManagerMetadata, 'UPLSAPO100XO')
                     switch header.IJMetadata.ChNames{channel_index}
-                        case 'GFP'
+                        case {'GFP', 'iSIM - GFP'}
                             FWHM_x(channel_index) = str2double(get(txa_100x_FWHM_xy{2}, 'Value'));
                             FWHM_y(channel_index) = str2double(get(txa_100x_FWHM_xy{2}, 'Value'));
                             FWHM_z(channel_index) = str2double(get(txa_100x_FWHM_z{2}, 'Value'));
                             itNum(channel_index) = str2double(get(txa_itNum{2}, 'Value'));
-                        case 'mCherry'
+                        case {'mCherry', 'iSIM - mCherry'}
                             FWHM_x(channel_index) = str2double(get(txa_100x_FWHM_xy{3}, 'Value'));
                             FWHM_y(channel_index) = str2double(get(txa_100x_FWHM_xy{3}, 'Value'));
                             FWHM_z(channel_index) = str2double(get(txa_100x_FWHM_z{3}, 'Value'));

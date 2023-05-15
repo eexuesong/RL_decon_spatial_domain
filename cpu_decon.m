@@ -1,9 +1,8 @@
-function output_image = gpu_decon(input_image, FWHM, iterations)
-% Updated gpu_decon 4/7/2017
+function output_image = cpu_decon(input_image, FWHM, iterations)
+% Updated cpu_decon 4/7/2017
 % Features to improve speed and memory utilization
 % 1. 3 convolutions with separated Gaussian kernels in X, Y, Z instead of imagaussfilt3.
 % This reduces array replication and allows 'in-place' writing - improving memory usage.
-% 2. Traffic to/from GPU as uint16 to improve speed
 
 %{
 Gaussian function:
@@ -85,38 +84,38 @@ psf_Z = reshape(psf_Z, [1, 1, kernal_size(3)]);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Pad input image %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [ny, nx, nz] = size(input_image);       % e.g. [512, 512, 100]
 npad = ceil(3 * sigma);                 % [6, 6, 6]
-gpu_Estimate = gpuArray(single(input_image));
+Estimate = single(input_image);
 if nz == 1
     % 2D slice
-    gpu_Estimate = padarray(gpu_Estimate, [npad(2), npad(1)], 'replicate', 'both');
+    Estimate = padarray(Estimate, [npad(2), npad(1)], 'replicate', 'both');
 else
     % 3D stack
-    gpu_Estimate = padarray(gpu_Estimate, [npad(2), npad(1), npad(3)], 'replicate', 'both');
+    Estimate = padarray(Estimate, [npad(2), npad(1), npad(3)], 'replicate', 'both');
 end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% Normalization factor %%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Ratio = ones(size(gpu_Estimate), 'single', 'gpuArray');
-% gpu_Normalization_factor = convn(Ratio, psf_X, 'same');
-% gpu_Normalization_factor = convn(gpu_Normalization_factor, psf_Y, 'same');
+% Ratio = ones(size(Estimate), 'single');
+% Normalization_factor = convn(Ratio, psf_X, 'same');
+% Normalization_factor = convn(Normalization_factor, psf_Y, 'same');
 % if nz > 1
 %     % 3D stack
-%     gpu_Normalization_factor = convn(gpu_Normalization_factor, psf_Z, 'same');
+%     Normalization_factor = convn(Normalization_factor, psf_Z, 'same');
 % end
-% gpu_Normalization_factor(gpu_Normalization_factor <= 0) = eps;
+% Normalization_factor(Normalization_factor <= 0) = eps;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Back projector %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-gpu_input_image = gpu_Estimate;
+cpu_input_image = Estimate;
 
 for k = 1: iterations
-    Blur = convn(gpu_Estimate, psf_X, 'same');
+    Blur = convn(Estimate, psf_X, 'same');
     Blur = convn(Blur, psf_Y, 'same');
     if nz > 1
         Blur = convn(Blur, psf_Z, 'same');
     end
     % 'same' — Return the central part of the convolution, which is the same size as A in convn(A,B).
 
-    Ratio = gpu_input_image ./ Blur;
+    Ratio = cpu_input_image ./ Blur;
     Correction = convn(Ratio, psf_X, 'same');
     Correction = convn(Correction, psf_Y, 'same');
     if nz > 1
@@ -125,18 +124,18 @@ for k = 1: iterations
     % Because psf_X, psf_Y and psf_Z are all symmetric around the origin.
     % Their flip is same as themselves.
 
-    %     gpu_Estimate = gpu_Estimate .* Correction ./ gpu_Normalization_factor;
-    gpu_Estimate = gpu_Estimate .* Correction;
+    %     Estimate = Estimate .* Correction ./ Normalization_factor;
+    Estimate = Estimate .* Correction;
 end
 
 if nz == 1
     % 2D slice
-    gpu_Estimate = gpu_Estimate(npad(2)+1:npad(2)+ny, npad(1)+1:npad(1)+nx);
+    Estimate = Estimate(npad(2)+1:npad(2)+ny, npad(1)+1:npad(1)+nx);
 else
     % 3D stack
-    gpu_Estimate = gpu_Estimate(npad(2)+1:npad(2)+ny, npad(1)+1:npad(1)+nx, npad(3)+1:npad(3)+nz);
+    Estimate = Estimate(npad(2)+1:npad(2)+ny, npad(1)+1:npad(1)+nx, npad(3)+1:npad(3)+nz);
 end
-output_image = gather(gpu_Estimate);
+output_image = gather(Estimate);
 % output_image = uint16(65535 * output_image ./ max(output_image, [], 'all'));
 
 

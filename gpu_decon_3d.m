@@ -48,7 +48,15 @@ end
 
 %% RL deconvolution part
 g = gpuDevice(1); reset(g);
-disp(['GPU Memory before RL deconvolution: ',num2str(g.FreeMemory / 1024 / 1024 / 1024), ' GB']);
+s = imfinfo(filename);
+
+if s(1).FileSize <= (g.FreeMemory / 4.4)
+    disp(['GPU Memory before RL deconvolution: ',num2str(g.FreeMemory / 1024 / 1024 / 1024), ' GB']);
+    gpu_flag = 1;
+else
+    gpu_flag = 0;
+end
+
 for channel_index = 1:channels
     if channels == 1
         input_image = image;
@@ -64,7 +72,11 @@ for channel_index = 1:channels
 %     end
 
     FWHM = [xres(channel_index), yres(channel_index), zres(channel_index)];
-    output_image = gpu_decon(input_image, FWHM, iteration(channel_index));
+    if gpu_flag
+        output_image = gpu_decon(input_image, FWHM, iteration(channel_index));
+    else
+        output_image = cpu_decon(input_image, FWHM, iteration(channel_index));
+    end
 
     if (header.BitsPerSample == 16)
         if max(output_image, [], 'all') <= 65535
@@ -79,8 +91,11 @@ for channel_index = 1:channels
     else
         output_stack(:, :, :, channel_index) = output_image;
     end
+
+    if gpu_flag
+        disp(['GPU Memory after RL deconvolution: ',num2str(g.FreeMemory / 1024 / 1024 / 1024), ' GB']);
+    end
 end
-disp(['GPU Memory after RL deconvolution: ',num2str(g.FreeMemory / 1024 / 1024 / 1024), ' GB']);
 
 
 %% Save tiff stack file
