@@ -17,10 +17,10 @@ pnl_100x = uipanel(inputDialog, 'Position', [10 100 480 105]);
 
 % set FWHM of PSFs (60X)
 uilabel(pnl_60x, 'Text', 'UPLSAPO60XS', 'Position', [10 80 100 20]);
-uilabel(pnl_60x, 'Text', '405 nm:', 'Position', [90 60 60 20]);
-uilabel(pnl_60x, 'Text', '488 nm:', 'Position', [190 60 60 20]);
-uilabel(pnl_60x, 'Text', '561 nm:', 'Position', [290 60 60 20]);
-uilabel(pnl_60x, 'Text', '633 nm:', 'Position', [390 60 60 20]);
+uilabel(pnl_60x, 'Text', '405 nm: DAPI', 'Position', [90 60 100 20]);
+uilabel(pnl_60x, 'Text', '488 nm: GFP', 'Position', [190 60 100 20]);
+uilabel(pnl_60x, 'Text', '561 nm: mCherry', 'Position', [290 60 100 20]);
+uilabel(pnl_60x, 'Text', '640 nm: cy5', 'Position', [390 60 100 20]);
 
 uilabel(pnl_60x, 'Text', 'XY (nm):', 'Position', [30 40 60 20]);
 txa_60x_FWHM_xy{1} = uitextarea(pnl_60x, 'Value', 'NA', 'Position', [90 40 60 20]);
@@ -36,10 +36,10 @@ txa_60x_FWHM_z{4} = uitextarea(pnl_60x, 'Value', 'NA', 'Position', [390 10 60 20
 
 % set FWHM of PSFs (100X)
 uilabel(pnl_100x, 'Text', 'UPLSAPO100XO', 'Position', [10 80 100 20]);
-uilabel(pnl_100x, 'Text', '405 nm:', 'Position', [90 60 60 20]);
-uilabel(pnl_100x, 'Text', '488 nm:', 'Position', [190 60 60 20]);
-uilabel(pnl_100x, 'Text', '561 nm:', 'Position', [290 60 60 20]);
-uilabel(pnl_100x, 'Text', '633 nm:', 'Position', [390 60 60 20]);
+uilabel(pnl_100x, 'Text', '405 nm: DAPI', 'Position', [90 60 100 20]);
+uilabel(pnl_100x, 'Text', '488 nm: GFP', 'Position', [190 60 100 20]);
+uilabel(pnl_100x, 'Text', '561 nm: mCherry', 'Position', [290 60 100 20]);
+uilabel(pnl_100x, 'Text', '640 nm: cy5', 'Position', [390 60 100 20]);
 
 uilabel(pnl_100x, 'Text', 'XY (nm):', 'Position', [30 40 60 20]);
 txa_100x_FWHM_xy{1} = uitextarea(pnl_100x, 'Value', '155', 'Position', [90 40 60 20]);
@@ -102,8 +102,13 @@ function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_
             itNum = zeros([1, length(header.IJMetadata.ChNames)]);
 
             for channel_index = 1:length(header.IJMetadata.ChNames)
-                if contains(header.MicroManagerMetadata, 'UPLSAPO60XS')
+                if strcmp(header.MicroManagerMetadata.Objective_Label, '5-UPLSAPO60XS')
                     switch header.IJMetadata.ChNames{channel_index}
+                        case {'DAPI', 'iSIM - DAPI'}
+                            FWHM_x(channel_index) = str2double(get(txa_60x_FWHM_xy{1}, 'Value'));
+                            FWHM_y(channel_index) = str2double(get(txa_60x_FWHM_xy{1}, 'Value'));
+                            FWHM_z(channel_index) = str2double(get(txa_60x_FWHM_z{1}, 'Value'));
+                            itNum(channel_index) = str2double(get(txa_itNum{1}, 'Value'));
                         case {'GFP', 'iSIM - GFP'}
                             FWHM_x(channel_index) = str2double(get(txa_60x_FWHM_xy{2}, 'Value'));
                             FWHM_y(channel_index) = str2double(get(txa_60x_FWHM_xy{2}, 'Value'));
@@ -114,9 +119,19 @@ function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_
                             FWHM_y(channel_index) = str2double(get(txa_60x_FWHM_xy{3}, 'Value'));
                             FWHM_z(channel_index) = str2double(get(txa_60x_FWHM_z{3}, 'Value'));
                             itNum(channel_index) = str2double(get(txa_itNum{3}, 'Value'));
+                        case {'cy5', 'iSIM - cy5'}
+                            FWHM_x(channel_index) = str2double(get(txa_60x_FWHM_xy{4}, 'Value'));
+                            FWHM_y(channel_index) = str2double(get(txa_60x_FWHM_xy{4}, 'Value'));
+                            FWHM_z(channel_index) = str2double(get(txa_60x_FWHM_z{4}, 'Value'));
+                            itNum(channel_index) = str2double(get(txa_itNum{4}, 'Value'));
                     end
-                elseif contains(header.MicroManagerMetadata, 'UPLSAPO100XO')
+                elseif strcmp(header.MicroManagerMetadata.Objective_Label, '6-UPLSAPO100XO')
                     switch header.IJMetadata.ChNames{channel_index}
+                        case {'DAPI', 'iSIM - DAPI'}
+                            FWHM_x(channel_index) = str2double(get(txa_100x_FWHM_xy{1}, 'Value'));
+                            FWHM_y(channel_index) = str2double(get(txa_100x_FWHM_xy{1}, 'Value'));
+                            FWHM_z(channel_index) = str2double(get(txa_100x_FWHM_z{1}, 'Value'));
+                            itNum(channel_index) = str2double(get(txa_itNum{1}, 'Value'));
                         case {'GFP', 'iSIM - GFP'}
                             FWHM_x(channel_index) = str2double(get(txa_100x_FWHM_xy{2}, 'Value'));
                             FWHM_y(channel_index) = str2double(get(txa_100x_FWHM_xy{2}, 'Value'));
@@ -127,9 +142,14 @@ function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_
                             FWHM_y(channel_index) = str2double(get(txa_100x_FWHM_xy{3}, 'Value'));
                             FWHM_z(channel_index) = str2double(get(txa_100x_FWHM_z{3}, 'Value'));
                             itNum(channel_index) = str2double(get(txa_itNum{3}, 'Value'));
+                        case {'cy5', 'iSIM - cy5'}
+                            FWHM_x(channel_index) = str2double(get(txa_100x_FWHM_xy{4}, 'Value'));
+                            FWHM_y(channel_index) = str2double(get(txa_100x_FWHM_xy{4}, 'Value'));
+                            FWHM_z(channel_index) = str2double(get(txa_100x_FWHM_z{4}, 'Value'));
+                            itNum(channel_index) = str2double(get(txa_itNum{4}, 'Value'));
                     end
                 else
-                    error('iSIM_decon_ui: no objective information is found');
+                    error('iSIM_decon_ui: no correct objective information is found');
                 end
                 
                 xres = FWHM_x / 1000 / double(header.resolution);
@@ -137,7 +157,7 @@ function yesButtonPushed(txa_60x_FWHM_xy, txa_60x_FWHM_z, txa_100x_FWHM_xy, txa_
                 zres = FWHM_z / 1000 / abs(header.spacing);
             end
 
-            gpu_decon_3d(xres, yres, zres, itNum, filename);
+            decon_gpu_3d(xres, yres, zres, itNum, filename);
         end  
     end
 
