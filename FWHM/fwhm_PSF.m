@@ -33,6 +33,7 @@ if(nargin == 4)
 end
 
 % PSF = PSF - mean(PSF(:));
+PSF = PSF / max(PSF, [], 'all');
 [ny, nx, nz] = size(PSF);
 if (ny == 1) || (nx == 1)
     % 1D input
