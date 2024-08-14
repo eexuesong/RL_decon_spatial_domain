@@ -1,4 +1,4 @@
-function decon_3d(xres, yres, zres, iteration, filename)
+function decon_3d(xres, yres, zres, background, iteration, filename)
 % Reads a image file, processes it, saves an output tif as 'filename_decon.tif'.
 
 % 09/06/17: gpu based serial decon, using gpu_decon. (USE THIS ONE)
@@ -56,6 +56,9 @@ for channel_index = 1:channels
             input_image = squeeze(permute(input_image, [1 2 4 3]));    % Swap slices and channels
         end
     end
+
+    input_image = input_image - background(channel_index);
+    input_image(input_image < 0) = 0;
 
 %     if min(input_image, [], 'all') <= 0
 %         input_image = input_image + 0.00001;
