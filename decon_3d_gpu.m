@@ -1,4 +1,4 @@
-function decon_3d(type, xres, yres, zres, background, iteration, filename)
+function decon_3d_gpu(xres, yres, zres, background, iteration, filename)
 % Reads a image file, processes it, saves an output tif as 'filename_decon.tif'.
 
 % 09/06/17: gpu based serial decon, using gpu_decon. (USE THIS ONE)
@@ -66,15 +66,7 @@ for channel_index = 1:channels
 %     end
 
     FWHM = [xres(channel_index), yres(channel_index), zres(channel_index)];
-    if type == "gpu"
-        output_image = decon_gpu(input_image, FWHM, iteration(channel_index));
-    elseif type == "cpu"
-        output_image = decon_cpu(input_image, FWHM, iteration(channel_index));
-    else
-        output_image = decon_core(input_image, FWHM, iteration(channel_index));
-    end
-
-    output_image = decon_core(input_image, FWHM, iteration(channel_index));
+    output_image = decon_gpu(input_image, FWHM, iteration(channel_index));
 
     if (header.BitsPerSample == 16)
         if max(output_image, [], 'all') <= 65535

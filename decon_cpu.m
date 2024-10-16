@@ -49,7 +49,7 @@ However, if 2 sigma is quite small for a Gaussian filter
 you can try 3 sigma to either side: 2 * ceil(3 * sigma) + 1.
 %}
 
-filter_radius = (kernal_size - 1) / 2;          % [4, 4, 4] 
+filter_radius = (kernal_size - 1) / 2;          % [4, 4, 4]
 
 X = (-filter_radius(1) : filter_radius(1))';    % column-wise [-4; -3; -2; -1; 0; 1; 2; 3; 4]
 Y = (-filter_radius(2) : filter_radius(2))';
@@ -84,6 +84,7 @@ psf_Z = reshape(psf_Z, [1, 1, kernal_size(3)]);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Pad input image %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+input_image = single(input_image);
 [ny, nx, nz] = size(input_image);       % e.g. [512, 512, 100]
 npad = ceil(3 * sigma);                 % [6, 6, 6]
 Estimate = single(input_image);
@@ -132,12 +133,13 @@ end
 
 if nz == 1
     % 2D slice
-    Estimate = Estimate(npad(2) + 1 : npad(2) + ny, npad(1) + 1 : npad(1) + nx);
+    output_image = Estimate(npad(2) + 1 : npad(2) + ny, npad(1) + 1 : npad(1) + nx);
 else
     % 3D stack
-    Estimate = Estimate(npad(2) + 1 : npad(2) + ny, npad(1) + 1 : npad(1) + nx, npad(3) + 1 : npad(3) + nz);
+    output_image = Estimate(npad(2) + 1 : npad(2) + ny, npad(1) + 1 : npad(1) + nx, npad(3) + 1 : npad(3) + nz);
 end
-output_image = gather(Estimate);
+
+disp('RL deconvolution using CPU finished.');
+end
+
 % output_image = uint16(65535 * output_image ./ max(output_image, [], 'all'));
-
-

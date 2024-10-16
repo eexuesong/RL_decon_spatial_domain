@@ -165,7 +165,7 @@ if gpu_flag
 
     disp(['GPU Memory after RL deconvolution: ',num2str(g.FreeMemory / 1024 / 1024 / 1024), ' GB']);
 else
-    input_image = Estimate;
+    cpu_input_image = Estimate;
     for k = 1: iterations
         Blur = convn(Estimate, psf_X, 'same');
         Blur = convn(Blur, psf_Y, 'same');
@@ -174,7 +174,7 @@ else
         end
         % 'same' — Return the central part of the convolution, which is the same size as A in convn(A,B).
 
-        Ratio = input_image ./ Blur;
+        Ratio = cpu_input_image ./ Blur;
         Correction = convn(Ratio, psf_X, 'same');
         Correction = convn(Correction, psf_Y, 'same');
         if nz > 1
